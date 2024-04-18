@@ -1,38 +1,30 @@
-##Worldmap with scatterpie according to coordinates
+##Worldmap with scatterpie according to coordinates, with ggplot2 and the scatterplot package seems easier
 install.packages("maps")
 install.packages("mapdata")
+install.packages("scatterpie")   #I had to install it from a Windows binary: r-devel: ggfun_0.1.0.zip
+library(scatterpie)
 library(maps)
 library(mapdata)
 library(ggplot2)
 
-##Failed method from molecularbiologist blog
-#https://www.molecularecologist.com/2012/09/18/making-maps-with-r/
-install.packages("mapplots")
-library(mapplots)
-#A world map, check the specifications of the package for customization
-maps::map("world", border = NA, col = "gray", fill = T)
 
-#our data
-strong_epi_fig3 <- read_excel("C:/Users/39460990M/Desktop/strong_epi_fig3.xlsx")
-View(strong_epi_fig3)
-df <- strong_epi_fig3
+df <- #Dataset with variables: "region",	
+      #                         "lat", "long": the coordinates where you want to display the scatterplor
+      #                         "n": total sample size
+      #                         "size": proportional size of the scatterpie (e.g., log transformation of n)	
+      #                         "a", "b", "c": variables for each characteristic displayes in the pies
 
-#I need to set a loop of iterations to build each pie plot
+#Set a loop to build each pie plot
 for (row in 2:6) {
   add.pie(z = c(df$screening, df$lab, df$symptom), x = df$long, y = df$lat,
         radius = df$n,
         col = c(alpha("orange", 0.6), alpha("blue", 0.6), alpha("green", 0.6)), 
         labels = c("screening", "laboratory\nfinding", "symptoms"))}
 
-##With ggplot2 and the scatterplot package seems easier
-#The scatterpie package needs the ggfun package. Not working from CRAN,
-#I had to install it from a Windows binary: r-devel: ggfun_0.1.0.zip
-install.packages("scatterpie") 
-library(scatterpie)
 #Generate a map using data from the maps package
 worldmap <- map_data("world")
 
-fig3 <- ggplot() +
+figX <- ggplot() +
   geom_map(data = worldmap, map = worldmap, aes(x=long, y=lat, map_id = region), col = "gray", fill = "gray") +
   geom_scatterpie(data = df, aes(x = long, y = lat, group = region, r = size), cols = c("screening", "lab", "symptom")) +
   theme_void()
